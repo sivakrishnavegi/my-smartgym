@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import RootProvider from "@/core/providers/RootProvider/RootProvider";
+import HomeLayout from "@/core/layouts/Home";
 
 const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '600', '800', '900'],
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "600", "800", "900"],
 });
 
 export const metadata: Metadata = {
-  title: 'Fitness Gym - HulkGains',
-  description:
-    'A modern fitness gym website ',
+  title: "Fitness Gym - HulkGains",
+  description: "A modern fitness gym website ",
 };
 
 export default function RootLayout({
@@ -21,10 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head></head>
-      <body
-        className={`${poppins.className} sans-serif`}
-      >
-        {children}
+      <body className={`${poppins.className} sans-serif`}>
+        <RootProvider>
+          <HomeLayout>{children}</HomeLayout>
+        </RootProvider>
       </body>
     </html>
   );

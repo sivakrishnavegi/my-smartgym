@@ -1,10 +1,11 @@
+import HomePageContainer from "@/core/containers/Home";
 
-export default function Home() {
+const HomePage = () => {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
     <div>
-      <h1 className="text-red-500 text-2xl">hhhh</h1>
-    </div>
+      <HomePageContainer />
     </div>
   );
-}
+};
+
+export default HomePage;
