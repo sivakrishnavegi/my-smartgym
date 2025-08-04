@@ -5,6 +5,9 @@ const HomePageContainer = () => {
   return (
     <div>
         <BannerComponent />
+        <div className='min-h-screen'>
+          fg
+        </div>
     </div>
   )
 }
