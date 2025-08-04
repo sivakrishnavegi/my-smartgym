@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head></head>
-      <body className={`${poppins.className} sans-serif`}>
+      <body className={`${poppins.className} sans-serif bg-black/90 text-black dark:text-white/90`}>
         <RootProvider>
           <HomeLayout>{children}</HomeLayout>
         </RootProvider>

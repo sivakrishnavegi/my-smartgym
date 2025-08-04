@@ -1,10 +1,10 @@
-import Header from "@/core/components/Header/Header";
+// import Header from "@/core/components/Header/Header";
 import React from "react";
 
 const HomeLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       {children}
     </div>
   );
