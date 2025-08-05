@@ -1,13 +1,15 @@
 "use client";
 
-// Imports from React and other libraries
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Sun, Moon, LogIn, User, Lock } from "lucide-react";
+import { LogIn, User, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import Cookies from 'js-cookie'
 
-// Shadcn UI components
+// Shadcn UI
 import {
   Form,
   FormControl,
@@ -25,28 +27,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAxiosPost } from "@/hooks/axios/useAxiosPostHook";
 
-// --- ZOD SCHEMA AND TYPES ---
-// Zod schema for form validation
+// Custom Hooks & Store
+import { useAxiosPost } from "@/hooks/axios/useAxiosPostHook";
+import { useAuth } from "@/store/useAuth";
+
+// Zod Schema
 const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters long.",
-  }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long." }),
 });
 
-// TypeScript type based on the Zod schema
 type FormValues = z.infer<typeof formSchema>;
 
-// --- RBAC LOGIN COMPONENT ---
 const LoginPageContainer = () => {
   const [message, setMessage] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
+  const router = useRouter();
 
-  // Initialize React Hook Form with Zod resolver
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,49 +63,54 @@ const LoginPageContainer = () => {
       role: "admin" | "user" | "trainer";
     };
   }>();
-
-  // Function to handle the form submission
+  console.log("first", data, error, loading);
+  // Handle form submission
   const onSubmit = async (values: FormValues) => {
     setMessage("");
     setUserRole(null);
-
     await postData("http://localhost:3000/api/auth/login", values);
-
-    if (error) {
-      setMessage(error);
-      return;
-    }
-
-    if (data) {
-      localStorage.setItem("token", data.token);
-      setUserRole(data.user.role);
-      setMessage(
-        `Login successful! Redirecting to ${data.user.role} dashboard...`
-      );
-      // Optionally: router.push(`/dashboard/${data.user.role}`)
-    }
   };
+
+  // Side-effect for login success or error
+ useEffect(() => {
+  if (data) {
+    Cookies.set('token', data.token, { path: '/', secure: true, sameSite: 'strict' })
+    useAuth.getState().login(data.user, data.token);
+    setUserRole(data.user.role);
+    setMessage(`Login successful! Redirecting to ${data.user.role} dashboard...`);
+   
+    // Push after 500ms to let message display
+    setTimeout(() => {
+      router.push(`/dashboard/${data?.user?.role}`);
+    }, 500);
+  }
+
+  if (error) {
+    setMessage(error);
+  }
+}, [data, error]);
+
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen font-thin text-gray-800 dark:text-white">
-      {/* Left Half: Fitness Theme Text */}
+      {/* Left Visual */}
       <div className="hidden md:flex flex-1 items-center justify-center p-8 relative">
         <div className="text-center space-y-8 lg:space-y-12">
-          <h1 className="text-4xl md:text-5xl lg:text-4xl font-extralight text-green-600 dark:text-green-400">
+          <h1 className="text-4xl md:text-5xl font-extralight text-green-600 dark:text-green-400">
             FORGE YOUR STRENGTH
           </h1>
-          <h2 className="text-3xl md:text-4xl lg:text-6xl font-thin leading-tight tracking-wide text-gray-700 dark:text-gray-200">
+          <h2 className="text-4xl lg:text-6xl font-thin tracking-wide text-gray-700 dark:text-gray-200">
             BREAK YOUR LIMITS
           </h2>
-          <p className="text-base md:text-lg lg:text-xl font-extralight lowercase text-gray-600 dark:text-gray-500 max-w-sm mx-auto">
+          <p className="text-lg font-extralight text-gray-600 dark:text-gray-500 max-w-sm mx-auto">
             TRANSFORM YOURSELF. DEFY EXPECTATIONS.
           </p>
         </div>
       </div>
 
-      {/* Right Half: Login Form */}
+      {/* Right Form */}
       <div className="flex flex-1 items-center justify-center p-4 md:p-8">
-        <Card className="w-full max-w-sm rounded-2xl border-gray-300 dark:border-gray-800 bg-zinc/90">
+        <Card className="w-full max-w-sm rounded-2xl border-gray-300 dark:border-gray-800 bg-zinc-900/90">
           <CardHeader className="flex flex-col items-center p-6">
             <LogIn
               size={48}
@@ -118,13 +123,14 @@ const LoginPageContainer = () => {
               Enter your email and password below to log in.
             </CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-6 p-6 pt-0">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
               >
-                {/* Email Input Field */}
+                {/* Email */}
                 <FormField
                   control={form.control}
                   name="email"
@@ -142,7 +148,7 @@ const LoginPageContainer = () => {
                           <Input
                             placeholder="user@example.com"
                             {...field}
-                            className="pl-10 text-gray-800 dark:text-white placeholder:text-gray-400 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 focus-visible:ring-green-500 focus:border-green-500"
+                            className="pl-10 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                           />
                         </div>
                       </FormControl>
@@ -151,7 +157,7 @@ const LoginPageContainer = () => {
                   )}
                 />
 
-                {/* Password Input Field */}
+                {/* Password */}
                 <FormField
                   control={form.control}
                   name="password"
@@ -168,9 +174,9 @@ const LoginPageContainer = () => {
                           />
                           <Input
                             type="password"
-                            placeholder="password"
+                            placeholder="••••••••"
                             {...field}
-                            className="pl-10 text-gray-800 dark:text-white placeholder:text-gray-400 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 focus-visible:ring-green-500 focus:border-green-500"
+                            className="pl-10 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                           />
                         </div>
                       </FormControl>
@@ -179,27 +185,29 @@ const LoginPageContainer = () => {
                   )}
                 />
 
-                {/* Login Button */}
+                {/* Submit */}
                 <Button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-thin"
+                  disabled={loading}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-thin flex items-center justify-center gap-2"
                 >
-                  Sign in
+                  {loading && <Loader2 size={18} className="animate-spin" />}
+                  {loading ? "Signing in..." : "Sign in"}
                 </Button>
               </form>
             </Form>
 
-            {/* Forgot Password Link */}
+            {/* Forgot Link */}
             <div className="text-center text-sm text-gray-600 dark:text-gray-400">
               <a
                 href="#"
-                className="font-medium text-green-600 dark:text-green-500 hover:text-green-700 dark:hover:text-green-400"
+                className="font-medium text-green-600 hover:text-green-700 dark:hover:text-green-400"
               >
                 Forgot your password?
               </a>
             </div>
 
-            {/* Message area */}
+            {/* Messages */}
             {message && (
               <div className="text-center text-sm font-thin">
                 <p
