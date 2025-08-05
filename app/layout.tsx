@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import RootProvider from "@/core/providers/RootProvider/RootProvider";
 import HomeLayout from "@/core/layouts/Home";
+  import { ToastContainer } from 'react-toastify';
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className={`${poppins.className} sans-serif bg-black/90 text-black dark:text-white/90`}>
         <RootProvider>
           <HomeLayout>{children}</HomeLayout>
+          <ToastContainer />
         </RootProvider>
       </body>
     </html>
