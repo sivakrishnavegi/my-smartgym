@@ -1,0 +1,31 @@
+import { useState } from 'react'
+import axios, { AxiosRequestConfig } from 'axios'
+
+type UseGetResponse<T> = {
+  data: T | null
+  error: string | null
+  loading: boolean
+  getData: (url: string, options?: AxiosRequestConfig) => Promise<void>
+}
+
+export const useAxiosGetHook = <T = unknown>(): UseGetResponse<T> => {
+  const [data, setData] = useState<T | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const getData = async (url: string, options?: AxiosRequestConfig) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await axios.get<T>(url, options)
+      setData(response.data)
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'GET request failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { data, error, loading, getData }
+}
