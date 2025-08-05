@@ -1,19 +1,25 @@
 // app/dashboard/layout.tsx
-import { Sidebar } from "@/core/components/Sidebar";
-import { TopNav } from "@/core/components/TopNav";
-import React from "react";
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { Breadcrumbs } from '@/core/components/Breadcrumbs'
+import { AppSidebar } from '@/core/components/Sidebar'
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <div className="flex min-h-screen bg-muted text-foreground">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content Area */}
-      <div className="flex flex-col flex-1">
-        <TopNav />
-        <main className="p-6">{children}</main>
-      </div>
+    <div className="flex min-h-screen text-foreground">
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="flex-1">
+          <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+            <SidebarTrigger />
+            <Breadcrumbs />
+          </div>
+          <div className="p-4">{children}</div>
+        </main>
+      </SidebarProvider>
     </div>
-  );
+  )
 }
